@@ -2,16 +2,18 @@ import time
 import streamlit as st
 import random
 import json
-import openai
+# import openai
+import zhipuai
+from zhipuai import ZhipuAI
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-openai.api_type = os.getenv("OPENAI_API_TYPE")
-openai.api_base = os.getenv("OPENAI_API_BASE")
-openai.api_version = os.getenv("OPENAI_API_VERSION")
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# openai.api_type = os.getenv("OPENAI_API_TYPE")
+# openai.api_base = os.getenv("OPENAI_API_BASE")
+# openai.api_version = os.getenv("OPENAI_API_VERSION")
+client = ZhipuAI(api_key="2d5ab00c9cd4492f92cd3e9cea7e2d67.QLk81oRUJn7BdNua") 
 
 gua_dict = {
     '阳阳阳': '乾',
@@ -136,8 +138,9 @@ if question := st.chat_input(placeholder="输入你内心的疑问", key='input'
     """)
 
     with st.spinner('加载解读中，请稍等 ......'):
-        response = openai.ChatCompletion.create(
-            engine="gpt35",
+        response = client.chat.completions.create(
+       
+            model="glm-4-flash",
             messages = [{"role":"system","content":"你是一位出自中华六爻世家的卜卦专家，你的任务是根据卜卦者的问题和得到的卦象，为他们提供有益的建议。你的解答应基于卦象的理解，同时也要尽可能地展现出乐观和积极的态度，引导卜卦者朝着积极的方向发展。"},
                         {"role":"user","content":f"""
                         问题是：{question},
@@ -149,8 +152,7 @@ if question := st.chat_input(placeholder="输入你内心的疑问", key='input'
             temperature=0.7,
             max_tokens=500,
             top_p=0.95,
-            frequency_penalty=0.5,
-            presence_penalty=0.1,
+            
             stop=None)
     add_message("assistant", response.choices[0].message.content)
     time.sleep(0.1)
